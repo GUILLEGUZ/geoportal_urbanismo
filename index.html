@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geoportal Participativo - Microintervenciones Ibarra</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="loading-overlay"><div class="spinner"></div><span id="loading-text">Cargando...</span></div>
+
+<div id="app">
+<header>
+  <h1>Geoportal Participativo - Microintervenciones Espacios Públicos Ibarra</h1>
+  <div id="basemapControl" style="display:flex;align-items:center;gap:6px;margin-right:12px;border-right:1px solid #5c5b57;padding-right:16px">
+    <span style="font-size:10px;color:#969592;text-transform:uppercase;letter-spacing:.5px">Mapa base:</span>
+    <select id="selectBasemap" style="width:auto;min-width:140px;padding:5px 8px;font-size:11px;background:#1a1a1c;border:1px solid #5c5b57;color:#c0bebb;border-radius:4px">
+      <option value="osm">OpenStreetMap</option>
+      <option value="sat">Imagen Satelital</option>
+      <option value="dark">Dark Gray</option>
+    </select>
+  </div>
+  <nav>
+    <button data-tab="capas">Capas</button>
+    <button class="activo" data-tab="analisis">Análisis</button>
+    <button data-tab="pendiente">Pendiente</button>
+    <button data-tab="priorizacion">Priorización</button>
+    <button data-tab="participacion">Participación</button>
+    <button data-tab="dashboard">Dashboard</button>
+  </nav>
+</header>
+
+<div id="contenido">
+<div id="sidebar">
+
+<!-- TAB ANÁLISIS -->
+<div id="panel-analisis" class="tab-panel visible">
+  <div class="card">
+    <h3>Seleccionar Punto de Referencia</h3>
+    <button id="btnSeleccionarPunto" class="primary" style="width:100%">Seleccionar punto en el mapa</button>
+    <div id="coordenadaSeleccionada" style="margin-top:6px">Ningún punto seleccionado</div>
+  </div>
+
+  <div class="card">
+    <h3>Análisis de Proximidad</h3>
+    <div class="fila" style="margin-bottom:8px">
+      <label>Capa:</label>
+      <select id="capa">
+        <option value="">Seleccione una capa</option>
+        <option value="areas_verdes_ibarra">Áreas verdes</option>
+        <option value="crv_5m_ibarra">Curvas de nivel</option>
+        <option value="equip_ed_ib">Equipamientos educativos</option>
+        <option value="equip_sa_ib">Equipamientos de salud</option>
+        <option value="limite_urbano_ibarra">Límite urbano</option>
+        <option value="manzanas_ibarra">Manzanas</option>
+        <option value="parroquias_urbanas">Parroquias urbanas</option>
+        <option value="predial_ibarra">Predios</option>
+        <option value="rios_ibarra">Ríos</option>
+        <option value="uso_de_suelo_ibarra">Uso de suelo</option>
+        <option value="vias_ibarra">Vías</option>
+      </select>
+    </div>
+    <div class="fila" style="margin-bottom:8px">
+      <input id="capaManual" type="text" placeholder="O escriba otra tabla (opcional)">
+    </div>
+    <button id="btnCalcular" class="primary">Calcular cercano y lejano</button>
+    <button id="btnLimpiar" class="outline" style="margin-top:6px">Limpiar análisis</button>
+    <div id="resultado" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h3>Leyenda</h3>
+    <div class="legend-item"><div class="legend-color" style="background:#c1e116"></div>Punto de origen</div>
+    <div class="legend-item"><div class="legend-color" style="background:#546c04"></div>Elemento más cercano</div>
+    <div class="legend-item"><div class="legend-color" style="background:#a49c9b"></div>Elemento más lejano</div>
+  </div>
+</div>
+
+<!-- TAB PARTICIPACIÓN -->
+<div id="panel-participacion" class="tab-panel">
+  <div class="card">
+    <h3>Nueva Propuesta de Microintervención</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">Seleccione un punto en el mapa y complete los datos</p>
+    <div class="fila" style="margin-bottom:6px">
+      <button id="btnUbicarPropuesta" class="outline" style="width:100%">Ubicar punto en el mapa</button>
+    </div>
+    <div id="coordPropuesta" style="font-size:12px;color:#5c6bc0;margin-bottom:6px">Sin ubicación</div>
+    <div style="margin-bottom:6px">
+      <label style="font-size:12px;font-weight:600">Categoría:</label>
+      <select id="catPropuesta">
+        <option value="ACERAS">Aceras y andenes</option>
+        <option value="ILUMINACION">Iluminación pública</option>
+        <option value="ARBOLADO">Arbolado urbano</option>
+        <option value="MOBILIARIO">Mobiliario urbano</option>
+        <option value="DRENAJE">Drenaje y aguas</option>
+        <option value="SEGURIDAD">Seguridad ciudadana</option>
+        <option value="REPAVEO">Repavimentación</option>
+        <option value="ESPACIO_VERDE">Espacio verde</option>
+        <option value="SEÑALIZACION">Señalización</option>
+        <option value="OTROS">Otros</option>
+      </select>
+    </div>
+    <div style="margin-bottom:6px">
+      <label style="font-size:12px;font-weight:600">Título:</label>
+      <input id="tituloPropuesta" type="text" placeholder="Breve descripción de la intervención">
+    </div>
+    <div style="margin-bottom:6px">
+      <label style="font-size:12px;font-weight:600">Detalle:</label>
+      <textarea id="descPropuesta" placeholder="Describa la situación actual y la intervención sugerida..."></textarea>
+    </div>
+    <div class="fila" style="margin-bottom:6px">
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:600">Prioridad percibida:</label>
+        <select id="prioridadPropuesta">
+          <option value="1">Baja</option>
+          <option value="2">Media-Baja</option>
+          <option value="3" selected>Media</option>
+          <option value="4">Media-Alta</option>
+          <option value="5">Alta / Urgente</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:600">Nombre (opcional):</label>
+        <input id="autorPropuesta" type="text" placeholder="Anónimo">
+      </div>
+    </div>
+    <button id="btnGuardarPropuesta" class="success" style="width:100%;margin-top:4px">Guardar propuesta</button>
+  </div>
+
+  <div class="card">
+    <h3>Propuestas Registradas (<span id="countPropuestas">0</span>)</h3>
+    <div class="fila" style="margin-bottom:8px">
+      <button id="btnTogglePropuestas" class="outline" style="flex:1">Mostrar propuestas en mapa</button>
+    </div>
+    <div class="filtros-row" id="filtroCategorias" style="margin-bottom:8px"></div>
+    <div id="listaPropuestas" style="max-height:400px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- TAB PRIORIZACIÓN -->
+<div id="panel-priorizacion" class="tab-panel">
+
+  <div class="card" style="border-left:3px solid #c1e116">
+    <h3>Instrucciones de Uso</h3>
+    <div style="font-size:11px;color:#c0bebb;line-height:1.7">
+      <p><strong style="color:#c1e116">Paso 1:</strong> Configure los <em>parámetros de distancia</em> (buffers y resolución de grilla) según su necesidad.</p>
+      <p><strong style="color:#c1e116">Paso 2:</strong> Ajuste las <em>ponderaciones</em> de cada criterio usando los sliders. Puede activar/desactivar criterios con el checkbox.</p>
+      <p><strong style="color:#c1e116">Paso 3:</strong> Seleccione qué <em>capas auxiliares</em> desea visualizar en el mapa (buffers, grilla).</p>
+      <p><strong style="color:#c1e116">Paso 4:</strong> Haga clic en <strong>"Ejecutar geoproceso"</strong>. El sistema generará una grilla de puntos dentro del límite urbano, calculará distancias a equipamientos y asignará un score a cada punto.</p>
+      <p><strong style="color:#c1e116">Paso 5:</strong> Revise los <em>resultados</em>: las 30 zonas más prioritarias aparecen en el mapa y en la lista. Haga clic en un marcador para ver detalles.</p>
+      <p style="margin-top:6px;color:#969592"><em>Nota: El geoproceso toma entre 3 y 10 segundos dependiendo de la resolución seleccionada.</em></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>1. Parámetros de Distancia</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">
+      Definen el tamaño de las zonas de influencia alrededor de cada equipamiento y la densidad de la grilla de análisis.
+    </p>
+    <div class="fila" style="margin-bottom:6px">
+      <label>Resolución grilla (m):</label>
+      <input id="resGrilla" type="number" value="200" min="50" max="1000" step="50" style="width:80px">
+    </div>
+    <div class="fila" style="margin-bottom:6px">
+      <label>Buffer salud (m):</label>
+      <input id="bufferSalud" type="number" value="500" min="100" max="3000" step="100" style="width:80px">
+    </div>
+    <div class="fila" style="margin-bottom:6px">
+      <label>Buffer educación (m):</label>
+      <input id="bufferEdu" type="number" value="400" min="100" max="3000" step="100" style="width:80px">
+    </div>
+    <div class="fila" style="margin-bottom:6px">
+      <label>Buffer verdes (m):</label>
+      <input id="bufferVerdes" type="number" value="300" min="100" max="2000" step="100" style="width:80px">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2. Ponderaciones de Criterios</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">
+      Asigne un peso a cada criterio (0 a 100). Los pesos se normalizan automáticamente para que la suma sea 100%. Desmarque un criterio para excluirlo del análisis.
+    </p>
+
+    <div style="margin-bottom:8px">
+      <div class="fila" style="margin-bottom:2px">
+        <input type="checkbox" id="cProxSalud" checked>
+        <label for="cProxSalud" style="font-size:12px;font-weight:600;color:#c0bebb">Cobertura de Salud</label>
+      </div>
+      <p style="font-size:10px;color:#969592;margin:0 0 4px 20px">Distancia a hospitales y centros de salud. Mayor peso = prioriza zonas lejanas a salud.</p>
+      <div class="fila" style="margin-left:20px">
+        <input type="range" id="pesoSalud" min="0" max="100" value="25" style="flex:1;accent-color:#a49c9b">
+        <span id="pesoSaludVal" style="font-size:11px;font-weight:700;color:#c0bebb;width:30px;text-align:right">25</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div class="fila" style="margin-bottom:2px">
+        <input type="checkbox" id="cProxEdu" checked>
+        <label for="cProxEdu" style="font-size:12px;font-weight:600;color:#c0bebb">Cobertura de Educación</label>
+      </div>
+      <p style="font-size:10px;color:#969592;margin:0 0 4px 20px">Distancia a instituciones educativas. Mayor peso = prioriza zonas lejanas a educación.</p>
+      <div class="fila" style="margin-left:20px">
+        <input type="range" id="pesoEdu" min="0" max="100" value="25" style="flex:1;accent-color:#c1e116">
+        <span id="pesoEduVal" style="font-size:11px;font-weight:700;color:#c0bebb;width:30px;text-align:right">25</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div class="fila" style="margin-bottom:2px">
+        <input type="checkbox" id="cProxVerde" checked>
+        <label for="cProxVerde" style="font-size:12px;font-weight:600;color:#c0bebb">Acceso a Áreas Verdes</label>
+      </div>
+      <p style="font-size:10px;color:#969592;margin:0 0 4px 20px">Distancia a parques y zonas verdes. Mayor peso = prioriza zonas sin acceso a verde.</p>
+      <div class="fila" style="margin-left:20px">
+        <input type="range" id="pesoVerde" min="0" max="100" value="20" style="flex:1;accent-color:#546c04">
+        <span id="pesoVerdeVal" style="font-size:11px;font-weight:700;color:#c0bebb;width:30px;text-align:right">20</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div class="fila" style="margin-bottom:2px">
+        <input type="checkbox" id="cCobertura" checked>
+        <label for="cCobertura" style="font-size:12px;font-weight:600;color:#c0bebb">Acceso Vial</label>
+      </div>
+      <p style="font-size:10px;color:#969592;margin:0 0 4px 20px">Proximidad a vías principales. Mayor peso = prioriza zonas alejadas de la red vial.</p>
+      <div class="fila" style="margin-left:20px">
+        <input type="range" id="pesoVia" min="0" max="100" value="15" style="flex:1;accent-color:#72716e">
+        <span id="pesoViaVal" style="font-size:11px;font-weight:700;color:#c0bebb;width:30px;text-align:right">15</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div class="fila" style="margin-bottom:2px">
+        <input type="checkbox" id="cDemanda" checked>
+        <label for="cDemanda" style="font-size:12px;font-weight:600;color:#c0bebb">Demanda Ciudadana</label>
+      </div>
+      <p style="font-size:10px;color:#969592;margin:0 0 4px 20px">Propuestas de los ciudadanos. Mayor peso = prioriza zonas con más solicitudes ciudadanas.</p>
+      <div class="fila" style="margin-left:20px">
+        <input type="range" id="pesoDemanda" min="0" max="100" value="15" style="flex:1;accent-color:#c1e116">
+        <span id="pesoDemandaVal" style="font-size:11px;font-weight:700;color:#c0bebb;width:30px;text-align:right">15</span>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;padding:6px 8px;background:#1a1a1c;border-radius:4px;font-size:11px">
+      <span style="color:#969592">Peso total efectivo: </span>
+      <span id="pesoTotalDisplay" style="font-weight:700;color:#c1e116">100</span>
+      <span style="color:#969592"> (los pesos se normalizan automáticamente)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3. Capas Auxiliares</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:6px">Seleccione qué capas auxiliares desea visualizar en el mapa junto a los resultados.</p>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+      <div class="fila"><input type="checkbox" id="showBufferSalud" checked><label for="showBufferSalud">Buffer salud</label></div>
+      <div class="fila"><input type="checkbox" id="showBufferEdu" checked><label for="showBufferEdu">Buffer educación</label></div>
+      <div class="fila"><input type="checkbox" id="showBufferVerdes" checked><label for="showBufferVerdes">Buffer áreas verdes</label></div>
+      <div class="fila"><input type="checkbox" id="showGrilla" checked><label for="showGrilla">Grilla de análisis</label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>4. Ejecutar</h3>
+    <button id="btnPriorizar" class="primary" style="width:100%">Ejecutar geoproceso</button>
+    <button id="btnLimpiarPriorizacion" class="outline" style="width:100%;margin-top:4px">Limpiar resultados</button>
+  </div>
+
+  <div class="card">
+    <h3>Resultados del Geoproceso</h3>
+    <div id="resultadosPriorizacion" style="font-size:12px">Ejecute el geoproceso para ver resultados.</div>
+  </div>
+</div>
+
+<!-- TAB DASHBOARD -->
+<div id="panel-dashboard" class="tab-panel">
+  <div class="card dash-wide">
+    <h3>Resumen General</h3>
+    <div id="metricasGenerales" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+  <div class="card">
+    <h3>Distribución de Prioridad Ciudadana</h3>
+    <div class="grafico-barras" id="graficoPrioridad" style="height:100px"></div>
+  </div>
+  <div class="card dash-tall">
+    <h3>Propuestas por Categoría</h3>
+    <div id="graficoCategoriasH" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+  <div class="card dash-tall">
+    <h3>Mapa de Calor — Densidad de Demandas</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">Distribución geográfica de propuestas ciudadanas. Radio proporcional a la cantidad de propuestas por zona.</p>
+    <canvas id="heatmapCanvas" width="380" height="260" style="width:100%;flex:1;border-radius:4px;border:1px solid #5c5b57;background:#0b0b09"></canvas>
+    <div id="heatmapLeyenda" style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:#969592"></div>
+  </div>
+  <div class="card dash-tall">
+    <h3>Indicadores de Cobertura</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">Porcentaje de propuestas que caen dentro de zonas de cobertura de equipamientos y áreas verdes.</p>
+    <div id="indicadoresCobertura" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+  <div class="card">
+    <h3>Capas Disponibles en Base de Datos</h3>
+    <div id="infoCapas"></div>
+  </div>
+</div>
+
+<!-- TAB CAPAS -->
+<div id="panel-capas" class="tab-panel">
+  <div class="card">
+    <h3>Capas del Proyecto</h3>
+    <p style="font-size:11px;color:#969592;margin-bottom:8px">Marque para cargar y mostrar. Desmarque para ocultar.</p>
+    <div id="listaCapasSidebar"></div>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button id="btnEncenderTodas" class="primary" style="flex:1">Encender todas</button>
+      <button id="btnApagarTodas" class="outline" style="flex:1">Apagar todas</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB PENDIENTE -->
+<div id="panel-pendiente" class="tab-panel">
+  <div class="card" style="border-left:3px solid #a49c9b">
+    <h3>Comparación: Pendiente vs Ciudad 15 min</h3>
+    <p style="font-size:11px;color:#969592;line-height:1.5">
+      Compara la distancia que un peatón puede recorrer en un tiempo determinado bajo dos escenarios: <strong style="color:#a49c9b">con pendiente</strong> (isócrona real) vs <strong style="color:#c1e116">sin pendiente</strong> (ciudad de 15 minutos).
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>1. Ubicar Punto de Partida</h3>
+    <button id="btnPendientePunto" class="primary" style="width:100%">Seleccionar punto en el mapa</button>
+    <div id="coordPendiente" style="margin-top:6px;font-size:11px;color:#c1e116">Ningún punto seleccionado</div>
+  </div>
+
+  <div class="card">
+    <h3>2. Parámetros</h3>
+    <div class="fila" style="margin-bottom:8px">
+      <label style="min-width:120px">Tiempo (min):</label>
+      <input id="pendTiempo" type="number" value="15" min="1" max="120" style="width:70px">
+    </div>
+    <div class="fila" style="margin-bottom:8px">
+      <label style="min-width:120px">Velocidad plana:</label>
+      <input id="pendVelPlana" type="number" value="4.5" min="1" max="15" step="0.5" style="width:70px">
+      <span style="font-size:11px;color:#969592">km/h</span>
+    </div>
+    <div class="fila" style="margin-bottom:8px">
+      <label style="min-width:120px">Pendiente media:</label>
+      <input id="pendPendiente" type="number" value="15" min="0" max="100" step="1" style="width:70px">
+      <span style="font-size:11px;color:#969592">%</span>
+    </div>
+    <div class="fila" style="margin-bottom:4px">
+      <label style="min-width:120px">Nro. rayos:</label>
+      <input id="pendRayos" type="number" value="36" min="8" max="72" step="4" style="width:70px">
+    </div>
+    <button id="btnPendienteEjecutar" class="success" style="width:100%;margin-top:8px">Ejecutar comparación</button>
+    <button id="btnPendienteLimpiar" class="outline" style="width:100%;margin-top:4px">Limpiar</button>
+  </div>
+
+  <div class="card">
+    <h3>Fórmulas Utilizadas</h3>
+    <div class="formula-box" style="margin-bottom:8px">
+      <div><span class="com">// Función de Tobler (velocidad con pendiente)</span></div>
+      <div><span class="var">v</span> <span class="op">=</span> 6 · e<sup>(-3.5 · |<span class="var">m</span> + 0.05|)</sup></div>
+      <div style="margin-top:4px"><span class="var">v</span> = velocidad (km/h), <span class="var">m</span> = tangente de la pendiente</div>
+    </div>
+    <div class="formula-box" style="margin-bottom:8px">
+      <div><span class="com">// Distancia peatonal</span></div>
+      <div><span class="var">d</span> <span class="op">=</span> <span class="var">v</span> · (<span class="var">t</span> / 60) · 1000</div>
+      <div style="margin-top:4px"><span class="var">d</span> = distancia (m), <span class="var">t</span> = tiempo (min)</div>
+    </div>
+    <div class="formula-box">
+      <div><span class="com">// Pendiente por rayo (variación simulada)</span></div>
+      <div><span class="var">m<sub>i</sub></span> <span class="op">=</span> <span class="var">m<sub>base</sub></span> · (1 + <span class="var">r<sub>i</sub></span>)</div>
+      <div style="margin-top:4px"><span class="var">r<sub>i</sub></span> = variación pseudoaleatoria por dirección</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Resultados Comparativos</h3>
+    <div class="stats-comparativos" id="statsPendiente">
+      <div class="stat-box iso">
+        <div class="stat-valor" id="statDistIso">—</div>
+        <div class="stat-label">Dist. con pendiente</div>
+      </div>
+      <div class="stat-box quince">
+        <div class="stat-valor" id="statDist15">—</div>
+        <div class="stat-label">Dist. sin pendiente</div>
+      </div>
+      <div class="stat-diff">
+        <div class="stat-valor" id="statDiff">—</div>
+        <div class="stat-label">Diferencia</div>
+      </div>
+    </div>
+    <div id="detallesPendiente" style="margin-top:8px;font-size:11px;color:#969592"></div>
+  </div>
+</div>
+
+</div>
+
+<div id="map-analisis" class="geo-map visible"></div>
+<div id="map-participacion" class="geo-map"></div>
+<div id="map-priorizacion" class="geo-map"></div>
+<div id="map-capas" class="geo-map"></div>
+
+<div id="pendiente-container">
+  <div class="pendiente-half">
+    <div class="pendiente-label iso">
+      <span class="badge">ISO</span>
+      Isócrona con Pendiente — Función de Tobler
+    </div>
+    <div style="position:relative;flex:1;display:flex;flex-direction:column">
+      <div id="map-isocrona" class="map-area"></div>
+      <select id="basemapIsoSelect" style="position:absolute;top:8px;right:8px;z-index:1000;width:auto;min-width:130px;padding:4px 6px;font-size:10px;background:rgba(11,11,9,.85);border:1px solid #5c5b57;color:#c0bebb;border-radius:4px;backdrop-filter:blur(4px)">
+        <option value="osm">OpenStreetMap</option>
+        <option value="sat">Imagen Satelital</option>
+        <option value="dark" selected>Dark Gray</option>
+      </select>
+    </div>
+  </div>
+  <div class="pendiente-divider"></div>
+  <div class="pendiente-half">
+    <div class="pendiente-label quince">
+      <span class="badge">15 MIN</span>
+      Ciudad de 15 Minutos — Sin Pendiente
+    </div>
+    <div style="position:relative;flex:1;display:flex;flex-direction:column">
+      <div id="map-quince" class="map-area"></div>
+      <select id="basemapQuinceSelect" style="position:absolute;top:8px;right:8px;z-index:1000;width:auto;min-width:130px;padding:4px 6px;font-size:10px;background:rgba(11,11,9,.85);border:1px solid #5c5b57;color:#c0bebb;border-radius:4px;backdrop-filter:blur(4px)">
+        <option value="osm" selected>OpenStreetMap</option>
+        <option value="sat">Imagen Satelital</option>
+        <option value="dark">Dark Gray</option>
+      </select>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
