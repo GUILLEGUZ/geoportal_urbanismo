@@ -1089,21 +1089,54 @@ cargarPropuestas().then(()=>{
 const sidebarEl=document.getElementById("sidebar");
 const toggleBtn=document.getElementById("sidebar-toggle");
 if(toggleBtn){
-  toggleBtn.addEventListener("click",function(){
-    sidebarEl.classList.toggle("sidebar-open");
-    this.innerHTML=sidebarEl.classList.contains("sidebar-open")?"&#10005;":"&#9776;";
+  function isMobile(){return window.innerWidth<=768}
+  function invalidateAllMaps(){
     setTimeout(()=>{
       [mapAnalisis,mapParticipacion,mapPriorizacion,mapCapas].forEach(m=>m.invalidateSize());
       if(mapIso)mapIso.invalidateSize();
       if(mapQuince)mapQuince.invalidateSize();
     },350);
+  }
+  if(isMobile()){
+    toggleBtn.classList.add("btn-left");
+  }
+  toggleBtn.addEventListener("click",function(){
+    if(isMobile()){
+      sidebarEl.classList.toggle("sidebar-open");
+      this.innerHTML=sidebarEl.classList.contains("sidebar-open")?"&#10005;":"&#9776;";
+    }else{
+      sidebarEl.classList.toggle("sidebar-hidden");
+      const hidden=sidebarEl.classList.contains("sidebar-hidden");
+      this.innerHTML=hidden?"&#9654;":"&#9664;";
+      if(hidden){
+        this.classList.add("sidebar-hidden");
+      }else{
+        this.classList.remove("sidebar-hidden");
+      }
+    }
+    invalidateAllMaps();
   });
   document.querySelectorAll("nav button").forEach(btn=>{
     btn.addEventListener("click",function(){
-      if(window.innerWidth<=768){
+      if(isMobile()){
         sidebarEl.classList.remove("sidebar-open");
         toggleBtn.innerHTML="&#9776;";
       }
     });
+  });
+  window.addEventListener("resize",function(){
+    if(isMobile()){
+      sidebarEl.classList.remove("sidebar-hidden");
+      toggleBtn.classList.remove("sidebar-hidden");
+      toggleBtn.classList.add("btn-left");
+      toggleBtn.innerHTML=sidebarEl.classList.contains("sidebar-open")?"&#10005;":"&#9776;";
+    }else{
+      sidebarEl.classList.remove("sidebar-open");
+      if(!sidebarEl.classList.contains("sidebar-hidden")){
+        toggleBtn.innerHTML="&#9664;";
+        toggleBtn.classList.remove("sidebar-hidden");
+      }
+    }
+    invalidateAllMaps();
   });
 }
