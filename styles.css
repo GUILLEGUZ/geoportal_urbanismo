@@ -53,7 +53,7 @@ button.outline{background:transparent;border:1px solid #5c5b57;color:#c1e116}
 button.outline:hover{background:#54545c;border-color:#c1e116}
 button:disabled{opacity:.4;cursor:not-allowed}
 
-#credits{position:fixed;bottom:0;left:0;right:0;background:#0b0b09;border-top:1px solid #5c5b57;text-align:center;padding:10px 20px;font-size:11px;color:#72716e;letter-spacing:.5px;z-index:10000}
+#credits{position:fixed;bottom:0;left:0;right:0;background:#0b0b09;border-top:1px solid #5c5b57;text-align:center;padding:10px 20px;font-size:11px;font-weight:normal;color:#72716e;letter-spacing:.5px;z-index:10000}
 
 #resultado{font-size:12px;line-height:1.5;padding:8px 12px;border-radius:4px;background:#0b0b09;border:1px solid #5c5b57;min-height:20px;color:#c0bebb}
 #resultado.error{background:#2a1a1a;border-color:#72716e;color:#d5d4d0}
