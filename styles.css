@@ -174,7 +174,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
   .pendiente-divider{width:100%;height:2px}
   .pendiente-half{min-height:40vh}
 
-  #sidebar-toggle{bottom:16px;width:44px;height:44px;font-size:20px;line-height:44px;border-radius:50%}
+  #sidebar-toggle{bottom:16px;z-index:10003;width:44px;height:44px;font-size:20px;line-height:44px;border-radius:50%}
   #sidebar-toggle.btn-left{left:12px}
   #sidebar-toggle.btn-left.sidebar-hidden{left:12px}
   #sidebar-toggle.btn-right{display:none}
