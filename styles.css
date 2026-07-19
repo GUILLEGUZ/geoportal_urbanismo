@@ -149,3 +149,58 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .leaflet-popup-close-button{color:#969592!important;font-size:20px!important;width:24px!important;height:24px!important;top:4px!important;right:4px!important}
 .leaflet-popup-close-button:hover{color:#c1e116!important}
 .leaflet-popup-close-button::before{content:"\00d7";font-size:20px;line-height:20px}
+
+#sidebar-toggle{display:none;position:fixed;bottom:50px;left:12px;z-index:10001;width:44px;height:44px;border-radius:50%;background:#c1e116;color:#0b0b09;border:none;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.5);line-height:44px;text-align:center;padding:0}
+
+@media(max-width:768px){
+  header{flex-wrap:wrap;padding:8px 12px;gap:8px}
+  header h1{font-size:11px;white-space:normal;width:100%;order:1}
+  #basemapControl{order:2;border-right:none;border-bottom:1px solid #5c5b57;padding-right:0;padding-bottom:6px;width:100%}
+  nav{order:3;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:3px}
+  nav button{padding:6px 10px;font-size:10px;white-space:nowrap;flex-shrink:0}
+
+  #sidebar{position:fixed;top:0;left:0;bottom:0;width:85vw;max-width:360px;z-index:10002;transform:translateX(-100%);transition:transform .3s ease;border-right:2px solid #c1e116}
+  #sidebar.sidebar-open{transform:translateX(0)}
+  #sidebar.dashboard-full{width:100vw;max-width:100vw}
+
+  .geo-map{left:0!important}
+  .geo-map.visible{display:block}
+
+  #pendiente-container{flex-direction:column}
+  .pendiente-divider{width:100%;height:2px}
+  .pendiente-half{min-height:40vh}
+
+  #sidebar-toggle{display:block}
+
+  .card{padding:10px}
+  .card h3{font-size:12px}
+  .fila{flex-direction:column;align-items:stretch}
+  .fila label{min-width:auto}
+  .stats-comparativos{flex-direction:column}
+  .stat-box{min-width:auto}
+  .stat-diff{min-width:auto}
+
+  .tab-panel.dashboard-grid{grid-template-columns:1fr}
+  .dash-tall{grid-row:span 1}
+  .dash-wide{grid-column:1}
+
+  .cat-hbar .cat-label{width:70px;font-size:9px}
+  .cobertura-bar .cob-label{width:70px;font-size:10px}
+  .metrica{min-width:70px;padding:8px 10px}
+  .metrica .valor{font-size:18px}
+
+  #credits{font-size:10px;padding:8px 0}
+}
+
+@media(min-width:769px) and (max-width:1024px){
+  #sidebar{width:340px;min-width:280px}
+  .geo-map{left:340px!important}
+}
+
+@media(max-width:480px){
+  header h1{font-size:10px}
+  nav button{padding:5px 8px;font-size:9px}
+  .card{padding:8px}
+  .propuesta .titulo{font-size:12px}
+  .propuesta .desc{font-size:10px}
+}

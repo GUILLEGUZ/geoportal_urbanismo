@@ -1085,3 +1085,25 @@ cargarPropuestas().then(()=>{
   actualizarDashboard();
   renderCapasDisponibles();
 });
+
+const sidebarEl=document.getElementById("sidebar");
+const toggleBtn=document.getElementById("sidebar-toggle");
+if(toggleBtn){
+  toggleBtn.addEventListener("click",function(){
+    sidebarEl.classList.toggle("sidebar-open");
+    this.innerHTML=sidebarEl.classList.contains("sidebar-open")?"&#10005;":"&#9776;";
+    setTimeout(()=>{
+      [mapAnalisis,mapParticipacion,mapPriorizacion,mapCapas].forEach(m=>m.invalidateSize());
+      if(mapIso)mapIso.invalidateSize();
+      if(mapQuince)mapQuince.invalidateSize();
+    },350);
+  });
+  document.querySelectorAll("nav button").forEach(btn=>{
+    btn.addEventListener("click",function(){
+      if(window.innerWidth<=768){
+        sidebarEl.classList.remove("sidebar-open");
+        toggleBtn.innerHTML="&#9776;";
+      }
+    });
+  });
+}
