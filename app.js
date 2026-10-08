@@ -29,7 +29,7 @@ const bmRefs=[];
 
 function makeMap(id){
   const m=L.map(id,{zoomControl:true}).setView(CENTER,13);
-  const def=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"});
+  const def=L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:16,attribution:"&copy; Esri"});
   def.addTo(m);
   bmRefs[m._leaflet_id]=def;
   return m;
@@ -40,7 +40,7 @@ const mapParticipacion=makeMap("map-participacion");
 const mapPriorizacion=makeMap("map-priorizacion");
 const mapCapas=makeMap("map-capas");
 
-function getBmLayer(v){return v==="osm"?L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}):v==="sat"?L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"}):L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"})}
+function getBmLayer(v){return v==="osm"?L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}):v==="sat"?L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"}):L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:16,attribution:"&copy; Esri"})}
 function trackBm(m,v){
   const old= bmRefs[m._leaflet_id];
   if(old)try{m.removeLayer(old)}catch(_){}
@@ -79,8 +79,8 @@ function initPendienteMaps(){
   const center=[0.3517,-78.1223];
   mapIso = L.map("map-isocrona",{zoomControl:false}).setView(center,14);
   mapQuince = L.map("map-quince",{zoomControl:false}).setView(center,14);
-  basemapIso = {dark:L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"}),osm:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}),sat:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"})};
-  basemapQuince = {osm:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}),dark:L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"}),sat:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"})};
+  basemapIso = {dark:L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:16,attribution:"&copy; Esri"}),osm:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}),sat:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"})};
+  basemapQuince = {osm:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}),dark:L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:16,attribution:"&copy; Esri"}),sat:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"})};
   basemapIso.dark.addTo(mapIso);
   basemapQuince.osm.addTo(mapQuince);
   let bmIsoActual=basemapIso.dark;
