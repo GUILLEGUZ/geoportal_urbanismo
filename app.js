@@ -25,9 +25,13 @@ const CENTER=[0.3517,-78.1223];
 function marcarGeoprocesoActivo(){}
 function limpiarGeoprocesoActivo(){}
 
+const bmRefs=[];
+
 function makeMap(id){
   const m=L.map(id,{zoomControl:true}).setView(CENTER,13);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"}).addTo(m);
+  const def=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"});
+  def.addTo(m);
+  bmRefs[m._leaflet_id]=def;
   return m;
 }
 
@@ -37,7 +41,6 @@ const mapPriorizacion=makeMap("map-priorizacion");
 const mapCapas=makeMap("map-capas");
 
 function getBmLayer(v){return v==="osm"?L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"&copy; OSM"}):v==="sat"?L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"&copy; Esri"}):L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"&copy; CARTO"})}
-const bmRefs=[];
 function trackBm(m,v){
   const old= bmRefs[m._leaflet_id];
   if(old)try{m.removeLayer(old)}catch(_){}
